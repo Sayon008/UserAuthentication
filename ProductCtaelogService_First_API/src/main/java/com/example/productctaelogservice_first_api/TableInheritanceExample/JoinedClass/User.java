@@ -1,14 +1,11 @@
-package com.example.productctaelogservice_first_api.TableInheritanceExample.TablePerClass;
+package com.example.productctaelogservice_first_api.TableInheritanceExample.JoinedClass;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
+import jakarta.persistence.*;
 
 import java.util.UUID;
 
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-@Entity(name="tpc_user")
+@Inheritance(strategy = InheritanceType.JOINED)
+@Entity(name="jc_user")
 public class User {
     @Id
     UUID id;

@@ -1,9 +1,9 @@
 CREATE TABLE category
 (
-    id              BIGINT       NOT NULL,
-    created_at      datetime     NULL,
-    last_updated_at datetime     NULL,
-    state           SMALLINT     NULL,
+    id              BIGINT NOT NULL,
+    created_at      datetime NULL,
+    last_updated_at datetime NULL,
+    state           SMALLINT NULL,
     name            VARCHAR(255) NULL,
     `description`   VARCHAR(255) NULL,
     CONSTRAINT pk_category PRIMARY KEY (id)
@@ -19,14 +19,14 @@ CREATE TABLE jc_instructor
 CREATE TABLE jc_mentor
 (
     user_id BINARY(16) NOT NULL,
-    ratings INT        NOT NULL,
+    ratings INT NOT NULL,
     CONSTRAINT pk_jc_mentor PRIMARY KEY (user_id)
 );
 
 CREATE TABLE jc_ta
 (
     user_id      BINARY(16) NOT NULL,
-    help_request INT        NOT NULL,
+    help_request INT NOT NULL,
     CONSTRAINT pk_jc_ta PRIMARY KEY (user_id)
 );
 
@@ -39,22 +39,22 @@ CREATE TABLE jc_user
 
 CREATE TABLE product
 (
-    id              BIGINT       NOT NULL,
-    created_at      datetime     NULL,
-    last_updated_at datetime     NULL,
-    state           SMALLINT     NULL,
+    id              BIGINT NOT NULL,
+    created_at      datetime NULL,
+    last_updated_at datetime NULL,
+    state           SMALLINT NULL,
     name            VARCHAR(255) NULL,
     `description`   VARCHAR(255) NULL,
-    price           DOUBLE       NULL,
+    price DOUBLE NULL,
     image_url       VARCHAR(255) NULL,
-    category_id     BIGINT       NULL,
-    is_prime        BIT(1)       NULL,
+    category_id     BIGINT NULL,
+    is_prime        BIT(1) NULL,
     CONSTRAINT pk_product PRIMARY KEY (id)
 );
 
 CREATE TABLE test_model
 (
-    id              BIGINT   NOT NULL,
+    id              BIGINT NOT NULL,
     created_at      datetime NULL,
     last_updated_at datetime NULL,
     state           SMALLINT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE tpc_mentor
 (
     id      BINARY(16)   NOT NULL,
     email   VARCHAR(255) NULL,
-    ratings INT          NOT NULL,
+    ratings INT NOT NULL,
     CONSTRAINT pk_tpc_mentor PRIMARY KEY (id)
 );
 
@@ -81,7 +81,7 @@ CREATE TABLE tpc_ta
 (
     id           BINARY(16)   NOT NULL,
     email        VARCHAR(255) NULL,
-    help_request INT          NOT NULL,
+    help_request INT NOT NULL,
     CONSTRAINT pk_tpc_ta PRIMARY KEY (id)
 );
 

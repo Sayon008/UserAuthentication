@@ -19,14 +19,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/products")
-public class ProductFakeStoreController {
+public class ProductController {
+
+//    For displaying use of Qualifier
+//    @Autowired
+//    @Qualifier("fkps")
+//    private IProductService productService1;
 
     @Autowired
-    @Qualifier("fkps")
-    private IProductService productService1;
-
-    @Autowired
-    @Qualifier("sps")
+//    @Qualifier("sps")
     private IProductService productService2;
 
 
@@ -49,11 +50,14 @@ public class ProductFakeStoreController {
 //        Insert Headers -> for proper context
             MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
 
-            if (id <= 0) {
+            if (id < 0) {
                 headers.add("Id value cannot be less than", "0");
 //                return new ResponseEntity<>(null, headers, HttpStatus.NOT_FOUND);
 //                Return exception instead 404 Not Found Status
                 throw  new IllegalArgumentException("Please try with productId > 0");
+            }
+            else if(id == 0){
+                throw new IllegalArgumentException("Product Id 0 is not present");
             }
 
             Product product = productService2.getProductById(id);
@@ -93,7 +97,7 @@ public class ProductFakeStoreController {
 //    }
 
 
-    @PostMapping
+    @PostMapping("/products")
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO){
 
         Product product = from(productDTO);
