@@ -6,15 +6,16 @@ import com.example.userauthenticationservice.exception.UserNotRegisteredExceptio
 import com.example.userauthenticationservice.models.Role;
 import com.example.userauthenticationservice.models.User;
 import com.example.userauthenticationservice.repository.UserRepo;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.MacAlgorithm;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.RequestEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 @Service
 public class AuthService implements IAuthService {
@@ -53,7 +54,7 @@ public class AuthService implements IAuthService {
     }
 
     @Override
-    public User login(String email, String password) throws UserNotRegisteredException, PasswordMissMatchException {
+    public Pair<User,String> login(String email, String password) throws UserNotRegisteredException, PasswordMissMatchException {
 
         Optional<User> userOptional = userRepo.findByEmail(email);
         if(userOptional.isEmpty()) {
@@ -67,6 +68,53 @@ public class AuthService implements IAuthService {
             throw new PasswordMissMatchException("Please add correct password...!!!");
         }
 
-        return userOptional.get();
+
+        //Generating JWT
+
+        //Payload Data  --> Hardcoded
+//        String message = "{\n" +
+//                "   \"email\": \"sayon@gmail.com\",\n" +
+//                "   \"roles\": [\n" +
+//                "      \"student\",\n" +
+//                "      \"buddy\"\n" +
+//                "   ],\n" +
+//                "   \"expirationDate\": \"2ndApril2025\"\n" +
+//                "}";
+
+//        Coverting the message into byte array
+//        byte[] content = message.getBytes(StandardCharsets.UTF_8);
+//        Generating the JWT token
+//        String token = Jwts.builder().content(content).compact();
+
+//        Payload data from the User data(DB), Data Structure will be used to store the data -> Hashmap
+        HashMap<String,Object> payload = new HashMap<>();
+        Long nowInMillies = System.currentTimeMillis();
+        payload.put("iat",nowInMillies);
+        payload.put("exp",nowInMillies + 100000);
+        payload.put("userId", userOptional.get().getId());
+        payload.put("iss","Scaler");
+        payload.put("roles", userOptional.get().getRoles());
+
+//Payload is also known as claims
+
+//        For generating signature we need secret key and Encryption Algo(HS256)
+//        Most Popular library for generating secretkey and algo - MacAlgorithm
+
+        MacAlgorithm algorithm = Jwts.SIG.HS256;
+//        Generating the secret key using the MacAlgorithm library
+        SecretKey secretKey = algorithm.key().build();
+
+//        Passing the secret key along the token
+        String token = Jwts.builder().claims(payload).signWith(secretKey).compact();
+
+//        Our Algorithm has to work with the encoded headers and encoded Payload, SecretKey
+
+//        Now want to return the user and the token both -> We can use Pain class to return both at the same time
+
+
+//        return userOptional.get();
+        return new Pair<User,String>(userOptional.get(),token);
     }
+
+
 }

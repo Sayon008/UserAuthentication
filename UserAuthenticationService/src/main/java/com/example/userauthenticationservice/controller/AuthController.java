@@ -9,10 +9,14 @@ import com.example.userauthenticationservice.exception.UserNotRegisteredExceptio
 import com.example.userauthenticationservice.models.User;
 import com.example.userauthenticationservice.repository.UserRepo;
 import com.example.userauthenticationservice.service.IAuthService;
+import org.antlr.v4.runtime.misc.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,9 +47,24 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<UserDTO> login(@RequestBody LoginRequest loginRequest) throws UserNotRegisteredException, PasswordMissMatchException {
         try{
-            User user = authService.login(loginRequest.getEmail(),loginRequest.getPassword());
+//            Now after implementing the JWT instead of returning User we will return the Pair<User,Token> together
+//            User user = authService.login(loginRequest.getEmail(),loginRequest.getPassword());
 
-            return new ResponseEntity<>(from(user), HttpStatus.OK);
+            Pair<User,String> pairResponse = authService.login(loginRequest.getEmail(),loginRequest.getPassword());
+
+//            Now if we want to refer to the variables of the Pair class -> either User or the token
+//            For User - pairResponse.a
+//            For Token - pairResponce.b
+
+//            Idially we sent token in our Cookies and cookies are added as a part of headers
+
+//            Add Headers -
+            MultiValueMap<String,String> headers = new LinkedMultiValueMap<>();
+//            Setting the token with HTTPHeaders using cookie
+//            We have added the SET_COOKIE because to give reference to my front-end that this token should be stored in your cookie
+            headers.add(HttpHeaders.SET_COOKIE,pairResponse.b);
+
+            return new ResponseEntity<>(from(pairResponse.a),headers, HttpStatus.OK);
 
         }catch(UserNotRegisteredException exception){
             throw exception;

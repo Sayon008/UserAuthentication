@@ -4,9 +4,10 @@ import com.example.userauthenticationservice.exception.PasswordMissMatchExceptio
 import com.example.userauthenticationservice.exception.UserAlreadyExistException;
 import com.example.userauthenticationservice.exception.UserNotRegisteredException;
 import com.example.userauthenticationservice.models.User;
+import org.antlr.v4.runtime.misc.Pair;
 
 public interface IAuthService {
     User signUp(String email, String password) throws UserAlreadyExistException;
 
-    User login(String email, String password) throws UserNotRegisteredException, PasswordMissMatchException;
+    Pair<User,String> login(String email, String password) throws UserNotRegisteredException, PasswordMissMatchException;
 }
