@@ -10,4 +10,6 @@ public interface IAuthService {
     User signUp(String email, String password) throws UserAlreadyExistException;
 
     Pair<User,String> login(String email, String password) throws UserNotRegisteredException, PasswordMissMatchException;
+
+    Boolean validateToken(String token, Long userId);
 }

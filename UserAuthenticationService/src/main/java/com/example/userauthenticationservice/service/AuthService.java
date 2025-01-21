@@ -4,8 +4,13 @@ import com.example.userauthenticationservice.exception.PasswordMissMatchExceptio
 import com.example.userauthenticationservice.exception.UserAlreadyExistException;
 import com.example.userauthenticationservice.exception.UserNotRegisteredException;
 import com.example.userauthenticationservice.models.Role;
+import com.example.userauthenticationservice.models.Session;
+import com.example.userauthenticationservice.models.State;
 import com.example.userauthenticationservice.models.User;
+import com.example.userauthenticationservice.repository.SessionRepo;
 import com.example.userauthenticationservice.repository.UserRepo;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.MacAlgorithm;
 import org.antlr.v4.runtime.misc.Pair;
@@ -25,6 +30,12 @@ public class AuthService implements IAuthService {
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    @Autowired
+    private SessionRepo sessionRepo;
+
+    @Autowired
+    private SecretKey secretKey;
 
     @Override
     public User signUp(String email, String password) throws UserAlreadyExistException {
@@ -68,6 +79,8 @@ public class AuthService implements IAuthService {
             throw new PasswordMissMatchException("Please add correct password...!!!");
         }
 
+//        If Password is matching -> Login Successful and generate a token
+
 
         //Generating JWT
 
@@ -100,12 +113,21 @@ public class AuthService implements IAuthService {
 //        For generating signature we need secret key and Encryption Algo(HS256)
 //        Most Popular library for generating secretkey and algo - MacAlgorithm
 
-        MacAlgorithm algorithm = Jwts.SIG.HS256;
+//        MacAlgorithm algorithm = Jwts.SIG.HS256;
 //        Generating the secret key using the MacAlgorithm library
-        SecretKey secretKey = algorithm.key().build();
+//        SecretKey secretKey = algorithm.key().build();
 
 //        Passing the secret key along the token
         String token = Jwts.builder().claims(payload).signWith(secretKey).compact();
+
+
+//        Sore the token into a Session
+        Session session = new Session();
+        session.setToken(token);
+        session.setUser(userOptional.get());
+        session.setState(State.ACTIVE);
+        sessionRepo.save(session);
+
 
 //        Our Algorithm has to work with the encoded headers and encoded Payload, SecretKey
 
@@ -116,5 +138,37 @@ public class AuthService implements IAuthService {
         return new Pair<User,String>(userOptional.get(),token);
     }
 
+
+    public Boolean validateToken(String token,Long userId){
+        Optional<Session> optionalSession = sessionRepo.findByTokenAndUserId(token,userId);
+
+        if(optionalSession.isEmpty()){
+            return false;
+        }
+
+//        String parsedToken = optionalSession.get().getToken();
+
+        JwtParser jwtParser = Jwts.parser().verifyWith(secretKey).build();
+
+        Claims claims = jwtParser.parseSignedClaims(token).getPayload();
+
+        Long tokenExpiry = (Long) claims.get("exp");
+
+        Long currentTime = System.currentTimeMillis();
+
+        System.out.println(tokenExpiry);
+        System.out.println(currentTime);
+
+        if(currentTime > tokenExpiry){
+//            Since the token is expired we should make the session state as INACTIVE and save it to the session db
+            Session session = optionalSession.get();
+            session.setState(State.INACTIVE);
+            sessionRepo.save(session);
+
+            return false;
+        }
+
+        return true;
+    }
 
 }

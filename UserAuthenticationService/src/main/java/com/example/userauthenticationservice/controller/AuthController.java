@@ -3,7 +3,9 @@ package com.example.userauthenticationservice.controller;
 import com.example.userauthenticationservice.dtos.LoginRequest;
 import com.example.userauthenticationservice.dtos.SignupRequest;
 import com.example.userauthenticationservice.dtos.UserDTO;
+import com.example.userauthenticationservice.dtos.ValidateTokenDTO;
 import com.example.userauthenticationservice.exception.PasswordMissMatchException;
+import com.example.userauthenticationservice.exception.UnAuthorizedException;
 import com.example.userauthenticationservice.exception.UserAlreadyExistException;
 import com.example.userauthenticationservice.exception.UserNotRegisteredException;
 import com.example.userauthenticationservice.models.User;
@@ -69,6 +71,22 @@ public class AuthController {
         }catch(UserNotRegisteredException exception){
             throw exception;
         }catch(PasswordMissMatchException exception){
+            throw exception;
+        }
+    }
+
+    @PostMapping("/validateToken")
+    public ResponseEntity<Boolean> validateToken(@RequestBody ValidateTokenDTO validateTokenDTO) throws UnAuthorizedException {
+        try{
+            Boolean result = authService.validateToken(validateTokenDTO.getToken(),validateTokenDTO.getUserId());
+
+            if(result == false){
+                throw new UnAuthorizedException("Please login again!!");
+            }
+
+            return new ResponseEntity<>(result,HttpStatus.OK);
+        }
+        catch (UnAuthorizedException exception){
             throw exception;
         }
     }

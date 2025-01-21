@@ -1,6 +1,7 @@
 package com.example.userauthenticationservice.controller;
 
 import com.example.userauthenticationservice.exception.PasswordMissMatchException;
+import com.example.userauthenticationservice.exception.UnAuthorizedException;
 import com.example.userauthenticationservice.exception.UserAlreadyExistException;
 import com.example.userauthenticationservice.exception.UserNotRegisteredException;
 import org.springframework.http.HttpStatus;
@@ -23,5 +24,10 @@ public class ControllerAdvice {
     @ExceptionHandler(PasswordMissMatchException.class)
     public ResponseEntity<String> handlePasswordMissMatchException(Exception exception) {
         return new ResponseEntity<>(exception.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnAuthorizedException.class)
+    public ResponseEntity<String> handleUnAuthorizedException(Exception exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 }
